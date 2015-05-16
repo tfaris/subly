@@ -1,0 +1,49 @@
+body {
+    font-family: proxima-nova, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #5E412F;
+    background-color: #ffffff;
+}
+
+.navbar.navbar-inverse, .navbar.navbar-inverse .navbar-brand{
+    color: #FCEBB6;
+}
+
+.navbar.navbar-inverse{
+    background-color: #F07818;
+    background-image: -webkit-linear-gradient(top, #F07818 0%, #F07818 100%);
+    background-image: -o-linear-gradient(top, #F07818 0%, #F07818 100%);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#F07818), to(#F07818));
+    background-image: linear-gradient(to bottom, #F07818 0%, #F07818 100%);
+    border-bottom: 1px solid #C86719;
+    margin-bottom: 0;
+}
+
+.navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .active > a{
+    background-color: #C86719;
+    background-image: -webkit-linear-gradient(top, #C86719 0%, #C86719 100%);
+    background-image: -o-linear-gradient(top, #C86719 0%, #C86719 100%);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#C86719), to(#C86719));
+    background-image: linear-gradient(to bottom, #C86719 0%, #C86719 100%);
+}
+
+.jumbotron{
+    background-color: #F07818;
+    color: #FCEBB6;
+}
+
+.primary-content{
+    margin-bottom: 25px;
+}
+
+.lead{
+    font-size: 28px;
+}
+
+footer{
+    background-color: #F07818;
+    color: #D8CA9C;
+    height: 120px;
+    padding-top: 25px;
+}

@@ -1,0 +1,70 @@
+{% extends 'djfrontend/base.html' %}
+{% load staticfiles djfrontend %}
+
+{% block title %}{{ APP_NAME }}{% endblock %}
+
+{% block head_css %}
+    {% djfrontend_twbs_css %}
+    {% djfrontend_twbs_theme_css %}
+    {% djfrontend_fontawesome %}
+    <link rel="stylesheet" href="{% static 'site/css/base.css' %}">
+{% endblock %}
+
+{% block head_js %}
+    {% djfrontend_jquery %}
+    {% djfrontend_twbs_js %}
+{% endblock %}
+
+{% block body_js %}{% endblock %}
+
+{% block body_content %}
+    {{ block.super }}
+    <nav class="navbar navbar-inverse navbar-static-top hidden-print">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <i class="fa fa-bars fa-lg"></i>
+                </button>
+                <a class="navbar-brand" href=".">{{ APP_NAME }}</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="hidden-sm active">
+                        <a href=".">Home</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="jumbotron jumbotron-carousel hidden-print">
+         <div class="container">
+            <div class="row">
+                <div class="text-center">
+                    <h1>{{ APP_NAME }}</h1>
+                </div>
+            </div>
+             <div class="row">
+                <div class="text-center">
+                    <h4>Giving you a better option for YouTube subscriptions.</h4>
+                </div>
+            </div>
+         </div>
+    </div>
+    <div class="container primary-content">
+        {% block primary_content %}
+            <p class="lead">{{ APP_NAME }} gives you finer control over your YouTube subscriptions.</p>
+            <p>Or at least it will eventually when something goes here :)</p>
+            {% for i in "1234567890"|make_list %}
+                <p>{% lorem %}</p>
+            {% endfor %}
+        {% endblock %}
+    </div>
+
+    <footer id="footer" class="footer hidden-print">
+        <div class="container text-center">
+            <div>
+                <i class="fa fa-info"></i>{{ APP_NAME }} {{ APP_VERSION }}
+            </div>
+        </div>
+    </footer>
+{% endblock %}

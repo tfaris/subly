@@ -16,13 +16,9 @@ import django
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
-
 SECRET_KEY = os.environ['SUBLY_SECRET_KEY']
 
-DEBUG = os.environ.get('SUBLY_DEBUG', 'False') in ('True', 'true')
+DEBUG = TEMPLATE_DEBUG = os.environ.get('SUBLY_DEBUG', 'False') in ('True', 'true')
 
 ALLOWED_HOSTS = []
 
@@ -35,6 +31,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'apps.site',
+    'djfrontend'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -48,7 +46,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
 )
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'apps.site.urls'
 
 TEMPLATES = [
     {
@@ -61,6 +59,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'apps.site.context_processors.site_info'
             ],
         },
     },
@@ -74,7 +73,7 @@ WSGI_APPLICATION = 'wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, '../../../db.sqlite3'),
     }
 }
 
