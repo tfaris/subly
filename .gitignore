@@ -1,0 +1,14 @@
+*.py[co]
+*.sqlite3
+/static/
+
+# PyCharm
+.idea/tasks.xml
+.idea/workspace.xml
+.idea/misc.xml
+.idea/dictionaries
+.idea/scopes
+.idea/dataSources.ids
+.idea/dataSources.xml
+.idea/sqlDataSources.xml
+.idea/dynamic.xml
