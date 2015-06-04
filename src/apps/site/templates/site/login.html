@@ -1,0 +1,9 @@
+{% extends 'site/base.html' %}
+
+{% block primary_content %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form }}
+        <button>Login</button>
+    </form>
+{% endblock %}

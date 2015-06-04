@@ -6,7 +6,7 @@ body {
     background-color: #ffffff;
 }
 
-.navbar.navbar-inverse, .navbar.navbar-inverse .navbar-brand{
+.navbar.navbar-inverse .nav > li > a, .navbar-inverse .navbar-brand{
     color: #FCEBB6;
 }
 

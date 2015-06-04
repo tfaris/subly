@@ -25,12 +25,19 @@
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <i class="fa fa-bars fa-lg"></i>
                 </button>
-                <a class="navbar-brand" href=".">{{ APP_NAME }}</a>
+                <a class="navbar-brand" href="{% url 'home' %}">{{ APP_NAME }}</a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li class="hidden-sm active">
-                        <a href=".">Home</a>
+                    <li class="hidden-sm {% if view.tab_id == 'home' %}active{% endif %}"><a href="{% url 'home' %}">Home</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="hidden-sm {% if view.tab_id == 'login' %}active{% endif %}">
+                        {% if request.user.is_authenticated %}
+                            <a href="{% url 'logout' %}">Logout</a>
+                        {% else %}
+                            <a href="{% url 'login' %}">Login</a>
+                        {% endif %}
                     </li>
                 </ul>
             </div>
@@ -54,9 +61,6 @@
         {% block primary_content %}
             <p class="lead">{{ APP_NAME }} gives you finer control over your YouTube subscriptions.</p>
             <p>Or at least it will eventually when something goes here :)</p>
-            {% for i in "1234567890"|make_list %}
-                <p>{% lorem %}</p>
-            {% endfor %}
         {% endblock %}
     </div>
 
