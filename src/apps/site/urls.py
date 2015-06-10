@@ -8,5 +8,6 @@ urlpatterns = [
     url(r'^login/?$', views.LoginView.as_view(), name='login'),
     url(r'^logout/?$', views.LogoutView.as_view(), name='logout'),
 
+    url(r'^messages/', include('messages_extends.urls')),
     url(r'^admin/', include(admin.site.urls)),
 ]

@@ -4,3 +4,7 @@ class NotAuthorized(Exception):
 
 class InvalidCredentials(Exception):
     pass
+
+
+class CredentialsNotAdded(Exception):
+    pass

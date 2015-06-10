@@ -75,7 +75,9 @@ class YTAuth(object):
         if credentials:
             if not credentials.creds.invalid:
                 return credentials.creds
-        raise exceptions.InvalidCredentials()
+            else:
+                raise exceptions.InvalidCredentials()
+        raise exceptions.CredentialsNotAdded()
 
     def save_credentials(self, user, token):
         """
