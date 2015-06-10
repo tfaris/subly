@@ -1,6 +1,7 @@
 *.py[co]
 *.sqlite3
 /static/
+keyset
 
 # PyCharm
 .idea/tasks.xml
