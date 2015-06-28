@@ -6,6 +6,20 @@ def chunks(l, n):
         yield l[i:i+n]
 
 
+class Video(object):
+    title = property(fget=lambda self: self._get_snippet_field('title'))
+    channel_title = property(fget=lambda self: self._get_snippet_field('channelTitle'))
+    description = property(fget=lambda self: self._get_snippet_field('description'))
+    tags = property(fget=lambda self: self._get_snippet_field('tags'))
+    publishedAt = property(fget=lambda self: self._get_snippet_field('publishedAt'))
+
+    def __init__(self, item):
+        self._item = item
+
+    def _get_snippet_field(self, field):
+        return self._item.get('snippet', {}).get(field, None)
+
+
 class VideoExtractor(object):
     def __init__(self, auth):
         self._auth = auth
@@ -55,8 +69,8 @@ class UploadPlaylistsVideoExtractor(VideoExtractor):
         videos = []
         for chunk in chunks(all_upload_items, 50):
             videos.extend(self.get_video_info(youtube, chunk))
-        videos.sort(key=lambda i: i['snippet']['publishedAt'])
-        print videos
+        videos.sort(key=lambda v: v.publishedAt)
+        return videos
 
     def get_playlist_items(self, youtube, playlist_id):
         """
@@ -71,4 +85,4 @@ class UploadPlaylistsVideoExtractor(VideoExtractor):
     def get_video_info(self, youtube, video_ids):
         vids = []
         vid_request = youtube.videos().list(part='snippet', id=','.join(video_ids), maxResults=50)
-        return vid_request.execute().get('items', [])
+        return [Video(item) for item in vid_request.execute().get('items', [])]
