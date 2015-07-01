@@ -15,6 +15,10 @@ import os
 import sys
 import django
 
+import apps.site.info
+
+VERSION = apps.site.info.__version__
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.environ['SUBLY_SECRET_KEY']

@@ -1,3 +1,6 @@
+import json
+
+
 def chunks(l, n):
     """
     Yield successive n-sized chunks from l.
@@ -6,7 +9,8 @@ def chunks(l, n):
         yield l[i:i+n]
 
 
-class Video(object):
+class SnippetItem(object):
+    id = property(fget=lambda self: self._item.get('id'))
     title = property(fget=lambda self: self._get_snippet_field('title'))
     channel_title = property(fget=lambda self: self._get_snippet_field('channelTitle'))
     description = property(fget=lambda self: self._get_snippet_field('description'))
@@ -16,11 +20,24 @@ class Video(object):
     def __init__(self, item):
         self._item = item
 
+    def dumps(self):
+        return json.dumps(self._item)
+
     def _get_snippet_field(self, field):
-        return self._item.get('snippet', {}).get(field, None)
+        return self._item.get('snippet', {}).get(field)
+
+
+class Playlist(SnippetItem):
+    item_count = property(fget=lambda self: self._item.get('contentDetails', {}).get('itemCount', None))
+
+
+class Video(SnippetItem):
+    pass
 
 
 class VideoExtractor(object):
+    PLAYLIST_MAX = 200
+
     def __init__(self, auth):
         self._auth = auth
 
@@ -28,7 +45,13 @@ class VideoExtractor(object):
         """
         Get videos for the specified user.
         """
-        raise NotImplemented
+        raise NotImplementedError
+
+    def get_playlists(self, youtube, playlist_ids):
+        pl_items = youtube.playlist().list(part='snippet,contentDetails',
+                                           id=','.join(playlist_ids),
+                                           maxResults=50).execute().get('items', [])
+        return [Playlist(item) for item in pl_items]
 
     def get_playlist_items(self, youtube, playlist_id, max_results=10):
         """
@@ -41,12 +64,41 @@ class VideoExtractor(object):
         return vids
 
     def get_video_info(self, youtube, video_ids):
-        vids = []
         vid_request = youtube.videos().list(part='snippet', id=','.join(video_ids), maxResults=50)
         return [Video(item) for item in vid_request.execute().get('items', [])]
 
     def get_service(self, user):
         return self._auth.get_service(user)
+
+    def get_playlist_insert_request(self, youtube, playlist_id, video_id):
+        """
+        Create a google api request to insert the video with the specified id into
+        the playlist with the specified id.
+        """
+        snippet = dict(
+            playlistId=playlist_id,
+            resourceId=dict(
+                kind='youtube#video',
+                videoId=video_id
+            )
+        )
+        return youtube.playlistItems().insert(
+            part='snippet',
+            body={'snippet': snippet}
+        )
+
+    def create_playlist(self, youtube, title, description='', tags=None, privacy_status='private'):
+        snippet = dict(
+            title=title,
+            description=description,
+            privacyStatus=privacy_status
+        )
+        if tags:
+            snippet['tags'] = tags
+        return Playlist(youtube.playlists().insert(
+            part='snippet',
+            body={'snippet': snippet}
+        ).execute())
 
 
 class UploadPlaylistsVideoExtractor(VideoExtractor):

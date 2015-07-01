@@ -1,9 +1,17 @@
 import re
+import json
+import logging
+from datetime import datetime
+from datetime import timedelta
+
 
 from django.db import models
 from django.conf import settings
 
 import fields
+from .. import video
+
+logger = logging.getLogger(__name__)
 
 
 class YTCredentialsManager(models.Manager):
@@ -22,6 +30,103 @@ class YTCredentials(models.Model):
     objects = YTCredentialsManager()
 
 
+class ExternalResource(models.Model):
+    """
+    Represents a resource belonging to an external system.
+    """
+    resource_max_length = 40
+    resource_id = models.CharField(max_length=resource_max_length)
+
+    class Meta:
+        abstract = True
+
+    def get(self, auth, user=None):
+        raise NotImplementedError
+
+
+class ExternalPlaylist(ExternalResource):
+    """
+    Represents a playlist maintained by an external system (eg., youtube)
+    """
+    active = models.BooleanField(default=True)
+
+    def get(self, auth, user=None):
+        ve = video.VideoExtractor(auth)
+        return ve.get_playlists(ve.get_service(user), (self.resource_id,))[0]
+
+
+class Playlist(models.Model):
+    """
+    Represents an internally-tracked playlist.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    youtube_playlists = models.ManyToManyField(ExternalPlaylist)
+    last_update = models.DateTimeField(null=True, blank=True)
+
+    def create_external_playlist(self, video_extractor, service):
+        now = datetime.utcnow()
+        from django.conf import settings
+        version = settings.VERSION
+        timestamp = now.strftime("%Y-%d-%m")
+        playlist_name = 'subly ' + timestamp
+        logger.info("Creating playlist \"%s\" for user." % playlist_name)
+        p = video_extractor.create_playlist(service,
+                                            playlist_name,
+                                            description="Playlist created by subly v%s %s" % (version, timestamp),
+                                            tags=['subly'])
+        ext_playlist = ExternalPlaylist(resource_id=p.id, active=True)
+        ext_playlist.save()
+        # Deactive all other tracked playlists for this playlist
+        self.youtube_playlists.update(active=False)
+        self.youtube_playlists.add(ext_playlist)
+        return ext_playlist
+
+    def add_videos(self, auth, videos, batch=None):
+        if videos:
+            now = datetime.now()
+            ve = video.VideoExtractor(auth)
+            service = ve.get_service(self.user)
+            ext_playlist = self.youtube_playlists.filter(active=True).last()
+            if not ext_playlist:
+                ext_playlist = self.create_external_playlist(ve, service)
+            else:
+                # Validate the external playlist
+                try:
+                    pl = ext_playlist.get(auth, self.user)
+                    if pl.item_count is not None and pl.item_count >= ve.PLAYLIST_MAX:
+                        logger.info(
+                            "Playlist \"%s\" for %s has reached the video limit. Creating a new playlist..." % (
+                                pl.title, self.user))
+                except Exception as ex:
+                    logger.exception(ex)
+                    ext_playlist = self.create_external_playlist(ve, service)
+            for vid in videos:
+                request = ve.get_playlist_insert_request(service, ext_playlist.resource_id, vid.id)
+                response = request.execute()
+            if self.last_update is None and self.youtube_playlists.count() == 0:
+                # Give the playlist an initial window to find videos (may not apply, depending on how active the
+                # user's subscriptions are)
+                self.last_update = now - timedelta(days=1)
+            self.last_update = now
+            self.save()
+
+
+class UnrecognizedVideo(models.Model):
+    """
+    Represents a video that was unmatched by any VideoFilter.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    title = models.CharField(max_length=100)
+    channel_title = models.CharField(max_length=100)
+
+    def get(self):
+        return video.Video(dict(
+            snippet=dict(
+                title=self.title,
+                channelTitle=self.channel_title
+            )
+        ))
+
 
 class VideoFilter(models.Model):
     VIDEO_TITLE = 1
@@ -35,7 +140,7 @@ class VideoFilter(models.Model):
         (TAGS, 'Tags')
     )
 
-    user = models.OneToOneField(settings.AUTH_USER_MODEL)
+    playlist = models.ForeignKey(Playlist)
     string = models.CharField(blank=True, max_length=150)
     ignore_case = models.BooleanField(default=True)
     field = models.PositiveSmallIntegerField(choices=FIELD_CHOICES)
