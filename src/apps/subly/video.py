@@ -30,6 +30,24 @@ class VideoExtractor(object):
         """
         raise NotImplemented
 
+    def get_playlist_items(self, youtube, playlist_id, max_results=10):
+        """
+        Get the video ids of videos in the specified playlist.
+        """
+        vids = []
+        pl_request = youtube.playlistItems().list(part='contentDetails', playlistId=playlist_id, maxResults=max_results)
+        for item in pl_request.execute().get('items', []):
+            vids.append(item['contentDetails']['videoId'])
+        return vids
+
+    def get_video_info(self, youtube, video_ids):
+        vids = []
+        vid_request = youtube.videos().list(part='snippet', id=','.join(video_ids), maxResults=50)
+        return [Video(item) for item in vid_request.execute().get('items', [])]
+
+    def get_service(self, user):
+        return self._auth.get_service(user)
+
 
 class UploadPlaylistsVideoExtractor(VideoExtractor):
     """
@@ -47,7 +65,7 @@ class UploadPlaylistsVideoExtractor(VideoExtractor):
         :param user:
         :return:
         """
-        youtube = self._auth.get_service(user)
+        youtube = self.get_service(user)
         # Gather a list of all IDs of the channels that the user is subscribed to.
 
         request = youtube.subscriptions().list(part='snippet', mine=True, maxResults=50)
@@ -71,18 +89,3 @@ class UploadPlaylistsVideoExtractor(VideoExtractor):
             videos.extend(self.get_video_info(youtube, chunk))
         videos.sort(key=lambda v: v.publishedAt)
         return videos
-
-    def get_playlist_items(self, youtube, playlist_id):
-        """
-        Get the video ids of videos in the specified playlist.
-        """
-        vids = []
-        pl_request = youtube.playlistItems().list(part='contentDetails', playlistId=playlist_id, maxResults=10)
-        for item in pl_request.execute().get('items', []):
-            vids.append(item['contentDetails']['videoId'])
-        return vids
-
-    def get_video_info(self, youtube, video_ids):
-        vids = []
-        vid_request = youtube.videos().list(part='snippet', id=','.join(video_ids), maxResults=50)
-        return [Video(item) for item in vid_request.execute().get('items', [])]
