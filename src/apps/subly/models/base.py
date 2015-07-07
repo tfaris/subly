@@ -97,6 +97,7 @@ class Playlist(models.Model):
                         logger.info(
                             "Playlist \"%s\" for %s has reached the video limit. Creating a new playlist..." % (
                                 pl.title, self.user))
+                        ext_playlist = self.create_external_playlist(ve, service)
                 except Exception as ex:
                     logger.exception(ex)
                     ext_playlist = self.create_external_playlist(ve, service)
