@@ -48,9 +48,9 @@ class VideoExtractor(object):
         raise NotImplementedError
 
     def get_playlists(self, youtube, playlist_ids):
-        pl_items = youtube.playlist().list(part='snippet,contentDetails',
-                                           id=','.join(playlist_ids),
-                                           maxResults=50).execute().get('items', [])
+        pl_items = youtube.playlists().list(part='snippet,contentDetails',
+                                            id=','.join(playlist_ids),
+                                            maxResults=50).execute().get('items', [])
         return [Playlist(item) for item in pl_items]
 
     def get_playlist_items(self, youtube, playlist_id, max_results=10):
