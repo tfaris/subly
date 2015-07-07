@@ -26,6 +26,12 @@ class SnippetItem(object):
     def _get_snippet_field(self, field):
         return self._item.get('snippet', {}).get(field)
 
+    def __eq__(self, other):
+        if hasattr(other, 'id'):
+            return self.id == other.id
+        else:
+            return super(SnippetItem, self).__eq__(other)
+
 
 class Playlist(SnippetItem):
     item_count = property(fget=lambda self: self._item.get('contentDetails', {}).get('itemCount', None))

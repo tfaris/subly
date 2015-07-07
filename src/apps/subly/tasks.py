@@ -32,6 +32,7 @@ class UpdatePlaylistsTask(object):
                 if playlists:
                     try:
                         video_match_count = {}
+                        excluded_videos = []
                         video_outdated_count = {}
                         playlist_videos = {}
                         unrecognized_batch = []
@@ -47,8 +48,17 @@ class UpdatePlaylistsTask(object):
                                             match = f.matches_video(video)
                                             if match:
                                                 video_match_count[video] = video_match_count.setdefault(video, 0) + 1
-                                                playlist_videos.setdefault(playlist, []).append(video)
                                                 logger.info("\"%s\" matches filter %s" % (video.title, f))
+                                                vid_list = playlist_videos.setdefault(playlist, [])
+                                                if f.exclusion:
+                                                    excluded_videos.append(video)
+                                                    # Remove all instances of the video, in case it somehow got added
+                                                    # multiple times.
+                                                    while video in vid_list:
+                                                        vid_list.remove(video)
+                                                else:
+                                                    if video not in vid_list and video not in excluded_videos:
+                                                        vid_list.append(video)
                                     else:
                                         video_outdated_count[video] = video_outdated_count.setdefault(video, 0) + 1
                                 # If the video had no matches in any playlists, and its not out of date with all

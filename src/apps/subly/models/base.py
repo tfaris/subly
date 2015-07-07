@@ -62,13 +62,14 @@ class Playlist(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     youtube_playlists = models.ManyToManyField(ExternalPlaylist)
     last_update = models.DateTimeField(null=True, blank=True)
+    title = models.CharField(blank=True, max_length=100, default="")
 
     def create_external_playlist(self, video_extractor, service):
         now = datetime.utcnow()
         from django.conf import settings
         version = settings.VERSION
         timestamp = now.strftime("%Y-%d-%m")
-        playlist_name = 'subly ' + timestamp
+        playlist_name = (self.title + ' ' if self.title else '') + '[subly %s]' % timestamp
         logger.info("Creating playlist \"%s\" for user." % playlist_name)
         p = video_extractor.create_playlist(service,
                                             playlist_name,
@@ -81,6 +82,7 @@ class Playlist(models.Model):
         self.youtube_playlists.add(ext_playlist)
         return ext_playlist
 
+    # TODO: add videos using batch http google api request
     def add_videos(self, auth, videos, batch=None):
         if videos:
             now = datetime.now()
@@ -149,6 +151,9 @@ class VideoFilter(models.Model):
     exact = models.BooleanField(default=False,
                                 help_text="Indicates whether the match has to be exact or just contained. Not "
                                           "applicable if the filter is a regular expression.")
+    exclusion = models.BooleanField(default=False,
+                                    help_text="If true, videos that match this filter will be excluded from the"
+                                              " associated playlist and not added as an unrecognized video.")
 
     def matches_video(self, video):
         """
@@ -189,5 +194,5 @@ class VideoFilter(models.Model):
             match_field_type = filter(lambda c: c[0] == self.field, self.FIELD_CHOICES)[0][1]
         except IndexError:
             match_field_type = 'Unknown'
-        return 'string="%s", field=%s, exact=%s, ignore_case=%s' % (self.string,
-                                                                    match_field_type, self.exact, self.ignore_case)
+        return 'string="%s", field=%s, exact=%s, ignore_case=%s, exclusion=%s' % (
+            self.string, match_field_type, self.exact, self.ignore_case, self.exclusion)
