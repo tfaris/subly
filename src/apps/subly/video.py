@@ -1,5 +1,7 @@
 import json
 
+from googleapiclient.http import BatchHttpRequest
+
 
 def chunks(l, n):
     """
@@ -59,19 +61,42 @@ class VideoExtractor(object):
                                             maxResults=50).execute().get('items', [])
         return [Playlist(item) for item in pl_items]
 
-    def get_playlist_items(self, youtube, playlist_id, max_results=10):
+    def get_playlist_items(self, youtube, playlist_id, max_results=10, batch=None, callback=None):
         """
         Get the video ids of videos in the specified playlist.
         """
-        vids = []
+        def handle_request(request_id, response, exception):
+            if exception:
+                raise exception
+            else:
+                vids = []
+                for item in response.get('items', []):
+                    vids.append(item['contentDetails']['videoId'])
+                if callback:
+                    callback(vids)
+                else:
+                    return vids
         pl_request = youtube.playlistItems().list(part='contentDetails', playlistId=playlist_id, maxResults=max_results)
-        for item in pl_request.execute().get('items', []):
-            vids.append(item['contentDetails']['videoId'])
-        return vids
+        if batch:
+            batch.add(pl_request, callback=handle_request)
+        else:
+            return handle_request(1, pl_request.execute(), None)
 
-    def get_video_info(self, youtube, video_ids):
+    def get_video_info(self, youtube, video_ids, batch=None, callback=None):
+        def handle_request(request_id, response, exception):
+            if exception:
+                raise exception
+            else:
+                video_info_list = [Video(item) for item in response.get('items', [])]
+                if callback:
+                    callback(video_info_list)
+                else:
+                    return video_info_list
         vid_request = youtube.videos().list(part='snippet', id=','.join(video_ids), maxResults=50)
-        return [Video(item) for item in vid_request.execute().get('items', [])]
+        if batch:
+            batch.add(vid_request, callback=handle_request)
+        else:
+            return handle_request(1, vid_request.execute(), None)
 
     def get_service(self, user):
         return self._auth.get_service(user)
@@ -140,10 +165,20 @@ class UploadPlaylistsVideoExtractor(VideoExtractor):
             # Cycle to the next page of subs
             request = youtube.subscriptions().list_next(request, subs)
         all_upload_items = []
+        playlist_items_batch = BatchHttpRequest()
         for playlist in upload_playlists:
-            all_upload_items.extend(self.get_playlist_items(youtube, playlist))
+            # TODO: Find a suitable max_results. 15 seems to miss videos, skips over recent ones for older ones
+            # TODO: 50 max_results * 22 subscribers = 1100-ish videos, taking around 30 seconds. Batching might help.
+            self.get_playlist_items(youtube,
+                                    playlist,
+                                    max_results=50,
+                                    batch=playlist_items_batch,
+                                    callback=lambda vids: all_upload_items.extend(vids))
+        playlist_items_batch.execute(http=youtube._http)
         videos = []
+        vid_info_batch = BatchHttpRequest()
         for chunk in chunks(all_upload_items, 50):
-            videos.extend(self.get_video_info(youtube, chunk))
+            self.get_video_info(youtube, chunk, batch=vid_info_batch, callback=lambda info: videos.extend(info))
+        vid_info_batch.execute(youtube._http)
         videos.sort(key=lambda v: v.publishedAt)
         return videos

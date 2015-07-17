@@ -82,8 +82,12 @@ class Playlist(models.Model):
         self.youtube_playlists.add(ext_playlist)
         return ext_playlist
 
-    # TODO: add videos using batch http google api request
-    def add_videos(self, auth, videos, batch=None):
+    def add_videos(self, auth, videos):
+        #
+        # NOTE: As of 07-16-2015, the youtube v3 API BatchHttpRequest does not
+        # work with adding videos to playlists. It is a known problem, see
+        # https://groups.google.com/forum/#!msg/google-api-javascript-client/9Qdf0LCYSZs/MOcYxFKtWMQJ
+        #
         if videos:
             now = datetime.now()
             ve = video.VideoExtractor(auth)
@@ -104,14 +108,16 @@ class Playlist(models.Model):
                     logger.exception(ex)
                     ext_playlist = self.create_external_playlist(ve, service)
             for vid in videos:
-                request = ve.get_playlist_insert_request(service, ext_playlist.resource_id, vid.id)
-                response = request.execute()
+                ve.get_playlist_insert_request(service, ext_playlist.resource_id, vid.id).execute()
             if self.last_update is None and self.youtube_playlists.count() == 0:
                 # Give the playlist an initial window to find videos (may not apply, depending on how active the
                 # user's subscriptions are)
                 self.last_update = now - timedelta(days=1)
             self.last_update = now
             self.save()
+    
+    def __unicode__(self):
+        return 'title="%s", last_updated="%s"' % (self.title, self.last_update)
 
 
 class UnrecognizedVideo(models.Model):
