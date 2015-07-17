@@ -32,9 +32,9 @@ class UpdatePlaylistsTask(object):
                 if playlists:
                     try:
                         video_match_count = {}
-                        excluded_videos = []
                         video_outdated_count = {}
                         playlist_videos = {}
+                        playlist_exclusions = {}
                         unrecognized_batch = []
                         user_videos = videos.get_videos(user)
                         for video in user_videos:
@@ -51,13 +51,14 @@ class UpdatePlaylistsTask(object):
                                                 logger.info("\"%s\" matches filter %s" % (video.title, f))
                                                 vid_list = playlist_videos.setdefault(playlist, [])
                                                 if f.exclusion:
-                                                    excluded_videos.append(video)
+                                                    playlist_exclusions.setdefault(playlist, []).append(video)
                                                     # Remove all instances of the video, in case it somehow got added
                                                     # multiple times.
                                                     while video in vid_list:
                                                         vid_list.remove(video)
                                                 else:
-                                                    if video not in vid_list and video not in excluded_videos:
+                                                    if (video not in vid_list
+                                                       and video not in playlist_exclusions.setdefault(playlist, [])):
                                                         vid_list.append(video)
                                     else:
                                         video_outdated_count[video] = video_outdated_count.setdefault(video, 0) + 1
