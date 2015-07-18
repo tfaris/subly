@@ -151,6 +151,7 @@ class VideoFilter(models.Model):
 
     playlist = models.ForeignKey(Playlist)
     string = models.CharField(blank=True, max_length=150)
+    channel_title = models.CharField(blank=True, null=True, max_length=40)
     ignore_case = models.BooleanField(default=True)
     field = models.PositiveSmallIntegerField(choices=FIELD_CHOICES)
     is_regex = models.BooleanField(default=False)
@@ -167,6 +168,8 @@ class VideoFilter(models.Model):
         :type video: video.Video
         :return:
         """
+        if self.channel_title and not self.channel_title == video.channel_title:
+            return False
         if self.field == self.TAGS:
             # Tags should be a list of strings. If we find one that matches, it's a success.
             for tag in video.tags:
