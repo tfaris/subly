@@ -3,6 +3,8 @@ import logging
 
 import dateutil.parser
 
+import celery
+
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 from django.db import transaction
@@ -18,10 +20,8 @@ import exceptions
 
 logger = logging.getLogger(__name__)
 
-# TODO: Add celery. Make UpdatePlaylistsTask a celery Task.
 
-
-class UpdatePlaylistsTask(object):
+class UpdatePlaylistsTask(celery.Task):
     def run(self, *args, **kwargs):
         now = datetime.now()
         auth = YTAuth()

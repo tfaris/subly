@@ -43,6 +43,8 @@ INSTALLED_APPS = (
     'messages_extends',
     'apps.site',
     'apps.subly',
+    'djcelery',
+    'kombu.transport.django',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -125,3 +127,16 @@ LOGGING = {
 
 STATIC_URL = '/static/'
 ENCRYPTED_FIELD_KEYS_DIR = '../keyset'
+
+import djcelery
+from celery.schedules import crontab
+djcelery.setup_loader()
+
+BROKER_TRANSPORT = 'kombu.transport.django:Transport'
+
+CELERYBEAT_SCHEDULE = {
+    "update_playlists": {
+        "task": "apps.subly.tasks.UpdatePlaylistsTask",
+        "schedule": crontab(minute=0, hour=0)
+    }
+}
