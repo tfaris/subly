@@ -1,4 +1,3 @@
-from datetime import datetime
 import logging
 
 import dateutil.parser
@@ -23,7 +22,6 @@ logger = logging.getLogger(__name__)
 
 class UpdatePlaylistsTask(celery.Task):
     def run(self, *args, **kwargs):
-        now = datetime.now()
         auth = YTAuth()
         videos = UploadPlaylistsVideoExtractor(auth)
         for user in self.users_to_update():

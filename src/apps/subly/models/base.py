@@ -1,12 +1,12 @@
 import re
 import json
 import logging
-from datetime import datetime
 from datetime import timedelta
 
 
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 import fields
 from .. import video
@@ -65,7 +65,7 @@ class Playlist(models.Model):
     title = models.CharField(blank=True, max_length=100, default="")
 
     def create_external_playlist(self, video_extractor, service):
-        now = datetime.utcnow()
+        now = timezone.now()
         from django.conf import settings
         version = settings.VERSION
         timestamp = now.strftime("%Y-%d-%m")
@@ -89,7 +89,7 @@ class Playlist(models.Model):
         # https://groups.google.com/forum/#!msg/google-api-javascript-client/9Qdf0LCYSZs/MOcYxFKtWMQJ
         #
         if videos:
-            now = datetime.now()
+            now = timezone.now()
             ve = video.VideoExtractor(auth)
             service = ve.get_service(self.user)
             ext_playlist = self.youtube_playlists.filter(active=True).last()
