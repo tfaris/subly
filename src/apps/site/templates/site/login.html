@@ -1,9 +1,6 @@
 {% extends 'site/base.html' %}
+{% load bootstrap3 %}
 
 {% block primary_content %}
-    <form method="post">
-        {% csrf_token %}
-        {{ form }}
-        <button>Login</button>
-    </form>
+    {% include 'forms/panel_form.html' with submit_text="Login" %}
 {% endblock %}

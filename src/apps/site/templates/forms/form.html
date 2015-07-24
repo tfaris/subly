@@ -1,0 +1,12 @@
+{% load bootstrap3 %}
+
+<form method="post" class="form {{ form_classes }}">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    {% if submit_text %}
+        {% buttons %}
+            <button class="btn btn-primary">{{ submit_text }}</button>
+        {% endbuttons %}
+    {% endif %}
+    {% block form_extra %}{% endblock %}
+</form>

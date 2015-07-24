@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_extensions',
     'djfrontend',
+    'bootstrap3',
     'messages_extends',
     'apps.site',
     'apps.subly',

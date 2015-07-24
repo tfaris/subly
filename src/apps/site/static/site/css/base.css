@@ -48,3 +48,9 @@ footer{
     height: 120px;
     padding-top: 25px;
 }
+
+/* Forms. Controls. */
+
+.panel-form{
+    max-width:450px;
+}

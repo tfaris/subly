@@ -1,6 +1,7 @@
 Django==1.8
 django-extensions==1.5.5
 django-frontend==1.6.1
+django-bootstrap3==5.4.0
 django-messages-extends==0.4
 google-api-python-client==1.4.0
 httplib2==0.9.1
