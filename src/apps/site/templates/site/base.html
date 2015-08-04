@@ -66,9 +66,13 @@
 
     <footer id="footer" class="footer hidden-print">
         <div class="container text-center">
-            <div>
-                <i class="fa fa-info"></i>{{ APP_NAME }} {{ APP_VERSION }}
-            </div>
+            <div>{{ APP_NAME }} {{ APP_VERSION }} created by <a href="http://www.github.com/tfaris">Tom Faris</a></div>
+            <ul class="list-inline text-muted">
+                <li>Version {{ APP_VERSION }}</li>
+                <li>
+                    <a href="http://www.github.com/tfaris/subly">GitHub</a>
+                </li>
+            </ul>
         </div>
     </footer>
 {% endblock %}

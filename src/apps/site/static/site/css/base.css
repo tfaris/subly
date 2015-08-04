@@ -32,6 +32,8 @@ body {
     background-color: #F07818;
     color: #FCEBB6;
     box-shadow: 0 3px 5px #A85512;
+    height: 150px;
+    padding-top: 0;
 }
 
 .primary-content{
@@ -43,7 +45,7 @@ body {
 }
 
 footer{
-    background-color: #F07818;
+    border-top: 1px solid;
     color: #D8CA9C;
     height: 120px;
     padding-top: 25px;
@@ -53,4 +55,8 @@ footer{
 
 .panel-form{
     max-width:450px;
+}
+.panel .form-title{
+    margin-bottom: 25px;
+    border-bottom: 1px solid #DDD;
 }
