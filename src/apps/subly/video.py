@@ -44,7 +44,7 @@ class Video(SnippetItem):
 
 
 class VideoExtractor(object):
-    PLAYLIST_MAX = 200
+    PLAYLIST_MAX = 150
 
     def __init__(self, auth):
         self._auth = auth
