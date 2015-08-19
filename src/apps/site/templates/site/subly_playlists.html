@@ -1,0 +1,22 @@
+{% extends 'site/base.html' %}
+{% load bootstrap3 %}
+
+{% block primary_content %}
+    <span class="alert alert-danger">TODO: Add/delete playlists.</span>
+    <div class="page-header">
+        <h2>Here are your playlists.</h2>
+    </div>
+    {% for pl in playlists %}
+        <div class="panel panel-default panel-form ">
+            <div class="panel-body">
+                <a href="{% url 'playlist_detail' pl.pk %}">
+                    <h4 class="playlist-title">{{ pl.title }} <div class="pull-right playlist-edit">Edit</div></h4>
+                </a>
+                <ul class="playlist-info list-unstyled">
+                    <li><small>Has created <strong>{{ pl.youtube_playlists.count }} playlists</strong> on YouTube.</small></li>
+                    <li><small>Last updated {{ pl.last_update }}</small></li>
+                </ul>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

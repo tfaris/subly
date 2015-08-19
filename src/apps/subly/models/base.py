@@ -115,6 +115,23 @@ class Playlist(models.Model):
                 self.last_update = now - timedelta(days=1)
             self.last_update = now
             self.save()
+
+    def get_total_video_count(self):
+        """
+        Get the total number of videos in the external playlists tracked by this
+        playlist.
+        """
+        from ..auth import YTAuth
+        auth = YTAuth()
+        total = 0
+        for ext_pl in self.youtube_playlists.all():
+            try:
+                pl = ext_pl.get(auth, self.user)
+                if pl.item_count is not None:
+                    total += pl.item_count
+            except Exception as ex:
+                logger.exception(ex)
+        return total
     
     def __unicode__(self):
         return 'title="%s", last_updated="%s"' % (self.title, self.last_update)

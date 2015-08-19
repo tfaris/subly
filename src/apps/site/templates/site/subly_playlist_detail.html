@@ -1,0 +1,55 @@
+{% extends 'site/base.html' %}
+{% load bootstrap3 staticfiles %}
+
+{% block head_js %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static 'site/js/subly.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/js/playlistdetail.js' %}"></script>
+{% endblock %}
+
+{% block primary_content %}
+    <div class="page-header">
+        <h2>Playlist: <small>{{ playlist.title }}</small></h2>
+    </div>
+    <h4>Playlist filters:</h4>
+    <input type="hidden" name="playlist-id" value="{{ playlist.pk }}" />
+
+    <div class="filter-table-controls">
+        <button class="btn btn-primary btn-add-filter">Add Filter</button>
+        <div class="pull-right">
+            <label class="checkbox-inline">
+                <input type="checkbox" id="advanced-controls">Show advanced controls
+            </label>
+        </div>
+    </div>
+    <table id="filters" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Match this...</th>
+                <th class="advanced-controls-col">Ignore Case</th>
+                <th class="advanced-controls-col">Regex</th>
+                <th>On this...</th>
+                <th>Exactly...</th>
+                <th>Exclude... <i class="fa fa-question-circle"></i></th>
+                <th>From Channel With This Title...</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for filter in filters %}
+                {% include 'site/subly_filter_row.html' %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!--
+    <ul class="list-group">
+        {% for filter in filters %}
+            <li class="list-group-item">
+                {% with form=filter.edit_form %}
+                    {% include 'forms/form.html' with form_classes="form-inline" %}
+                {% endwith %}
+            </li>
+        {% endfor %}
+    </ul>-->
+{% endblock %}

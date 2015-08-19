@@ -1,0 +1,30 @@
+<tr>
+    <td>
+        <input type="text" class="form-control" data-id="{{ filter.pk }}" data-field="string" value="{{ filter.string }}" />
+    </td>
+    <td>
+        <input type="checkbox" data-id="{{ filter.pk }}" data-field="ignore_case" {% if filter.ignore_case %}checked{% endif %} />
+    </td>
+    <td>
+        <input type="checkbox" data-id="{{ filter.pk }}" data-field="is_regex" {% if filter.is_regex %}checked{% endif %} />
+    </td>
+    <td>
+        <select class="form-control" data-id="{{ filter.pk }}" data-field="field">
+            {% for opt in filter_fields %}
+                <option value="{{ opt.0 }}" {% if opt.0 == filter.field %}selected{% endif %}>{{ opt.1 }}</option>
+            {% endfor %}
+        </select>
+    </td>
+    <td>
+        <input type="checkbox" data-id="{{ filter.pk }}" data-field="exact" {% if filter.exact %}checked{% endif %} />
+    </td>
+    <td>
+        <input type="checkbox" data-id="{{ filter.pk }}" data-field="exclusion" {% if filter.exclusion %}checked{% endif %} />
+    </td>
+    <td>
+        <input type="text" class="form-control" data-id="{{ filter.pk }}" data-field="channel_title" value="{% if filter.channel_title %}{{ filter.channel_title }}{% endif %}" />
+    </td>
+    <td class="delete-control">
+        <button data-id="{{ filter.pk }}" class="close"><span aria-hidden="true">&times;</span></button>
+    </td>
+</tr>
