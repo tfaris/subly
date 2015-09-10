@@ -1,21 +1,45 @@
-from django.views.generic import RedirectView, TemplateView, FormView, View
+import logging
+
+from django.views.generic import TemplateView, View, FormView
 from django.http import response, JsonResponse
 from django.core import urlresolvers
+from django.contrib import messages
 
 from mixins import TabViewMixin, LoginRequiredMixin
 
 from apps.subly.models import Playlist, VideoFilter
-from apps.subly.forms import EditVideoFilterForm
+from apps.subly.forms import EditVideoFilterForm, CreatePlaylistForm
+
+logger = logging.getLogger(__name__)
 
 
-class PlaylistsView(LoginRequiredMixin, TemplateView, TabViewMixin):
+class PlaylistsView(LoginRequiredMixin, FormView, TabViewMixin):
     template_name = 'site/subly_playlists.html'
     tab_id = 'playlists'
+    form_class = CreatePlaylistForm
+    created_playlist = None
 
     def get_context_data(self, **kwargs):
         data = super(PlaylistsView, self).get_context_data(**kwargs)
         data['playlists'] = Playlist.objects.filter(user=self.request.user).order_by('-last_update')
         return data
+
+    def get_success_url(self):
+        return urlresolvers.reverse('playlist_detail', args=(self.created_playlist.pk,))
+
+    def form_valid(self, form):
+        playlist_name = form.cleaned_data.get('playlist_name')
+        pl = self.created_playlist = Playlist(
+            user=self.request.user,
+            title=playlist_name
+        )
+        pl.save()
+        return super(PlaylistsView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        if not form.cleaned_data.get('playlist_name'):
+            messages.add_message(self.request, messages.ERROR, "Playlist name cannot be empty.")
+        return super(PlaylistsView, self).form_invalid(form)
 
 
 class PlaylistsDetailView(LoginRequiredMixin, TemplateView, TabViewMixin):

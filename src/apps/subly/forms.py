@@ -11,3 +11,7 @@ class EditVideoFilterForm(forms.ModelForm):
     class Meta:
         model = VideoFilter
         fields = ['string', 'field', 'channel_title', 'ignore_case', 'is_regex', 'exact', 'exclusion']
+
+
+class CreatePlaylistForm(forms.Form):
+    playlist_name = forms.CharField(min_length=1)

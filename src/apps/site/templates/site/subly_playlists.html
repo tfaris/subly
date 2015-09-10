@@ -1,10 +1,49 @@
 {% extends 'site/base.html' %}
-{% load bootstrap3 %}
+{% load bootstrap3 staticfiles widget_tweaks %}
+
+{% block head_js %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static 'site/js/subly.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/js/playlists.js' %}"></script>
+{% endblock %}
 
 {% block primary_content %}
-    <span class="alert alert-danger">TODO: Add/delete playlists.</span>
+    {% bootstrap_messages %}
+    <div class="modal fade" id="addPlaylistModal" tabindex="-1" role="dialog" aria-labelledby="addPlaylistModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="addPlaylistModalLabel">New Playlist</h4>
+                </div>
+                <form method="post" action="{% url 'playlist_new' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="playlist-name" class="control-label">Playlist Name:</label>
+                            {% render_field form.playlist_name class+="form-control" %}
+                            {% if form.playlist_name.errors %}
+                                <div class="alert alert-danger">
+                                    {{ form.playlist_name.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button class="btn btn-primary">Create Playlist</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <span class="alert alert-danger">TODO: Delete playlists.</span>
     <div class="page-header">
         <h2>Here are your playlists.</h2>
+    </div>
+    <div class="filter-table-controls">
+        <button type="button" class="btn btn-primary btn-add-playlist" data-toggle="modal" data-target="#addPlaylistModal">Add Playlist</button>
     </div>
     {% for pl in playlists %}
         <div class="panel panel-default panel-form ">

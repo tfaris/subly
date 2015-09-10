@@ -76,7 +76,7 @@ footer{
 .filter-table-controls{
     font-size: 0.7em;
     color: #B3B1B1;
-
+    margin: 20px 0;
     line-height: 2em;
 }
 #filters .delete-control{
