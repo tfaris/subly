@@ -11,6 +11,9 @@
     <div class="page-header">
         <h2>Playlist: <small>{{ playlist.title }}</small></h2>
     </div>
+    <div class="pull-right">
+        <a href="#" data-toggle="modal" data-target="#delPlaylistModal" class="text-danger">Delete Playlist</a>
+    </div>
     <h4>Playlist filters:</h4>
     <input type="hidden" name="playlist-id" value="{{ playlist.pk }}" />
 
@@ -42,14 +45,25 @@
         </tbody>
     </table>
 
-    <!--
-    <ul class="list-group">
-        {% for filter in filters %}
-            <li class="list-group-item">
-                {% with form=filter.edit_form %}
-                    {% include 'forms/form.html' with form_classes="form-inline" %}
-                {% endwith %}
-            </li>
-        {% endfor %}
-    </ul>-->
+    <div class="modal fade" id="delPlaylistModal" tabindex="-1" role="dialog" aria-labelledby="delPlaylistModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="delPlaylistModalLabel">Delete Playlist</h4>
+                </div>
+                <div class="modal-body">
+                    <div>Are you sure you want to delete {{ APP_NAME }} playlist <strong>{{ playlist.title }}</strong>? All video filters created under this playlist will be lost.</div>
+                    <div class="deletion-note"><strong>Note: </strong> This is a permanent action. This does NOT delete playlists or videos on your YouTube account.</div>
+                </div>
+                <div class="modal-footer">
+                    <form method="post" action="{% url 'playlist_delete' playlist.pk %}">
+                        {% csrf_token %}
+                        <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button class="btn btn-danger">Delete Playlist</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

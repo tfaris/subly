@@ -10,6 +10,7 @@ urlpatterns = [
 
     url(r'^playlists/$', views.PlaylistsView.as_view(), name='playlists'),
     url(r'^playlists/(\d+)$', views.PlaylistsDetailView.as_view(), name='playlist_detail'),
+    url(r'^playlists/(\d+)/delete/$', views.PlaylistsDeleteView.as_view(), name='playlist_delete'),
     url(r'^playlists/$', views.PlaylistsView.as_view(), name='playlist_new'),
 
     url(r'^playlists/filter/new/$', views.VideoFilterCreateView.as_view(), name='filter_new'),

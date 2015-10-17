@@ -4,6 +4,7 @@ from django.views.generic import TemplateView, View, FormView
 from django.http import response, JsonResponse
 from django.core import urlresolvers
 from django.contrib import messages
+from django.db import transaction
 
 from mixins import TabViewMixin, LoginRequiredMixin
 
@@ -60,6 +61,21 @@ class PlaylistsDetailView(LoginRequiredMixin, TemplateView, TabViewMixin):
             return data
         except Playlist.DoesNotExist:
             raise response.Http404
+
+
+class PlaylistsDeleteView(LoginRequiredMixin, View):
+    def post(self, request, playlist_id, *args, **kwargs):
+        with transaction.atomic():
+            try:
+                playlist = Playlist.objects.get(pk=playlist_id)
+                if playlist.user != request.user:
+                    raise response.HttpResponseForbidden
+                else:
+                    playlist.delete()
+                    return response.HttpResponseRedirect(urlresolvers.reverse('playlists'))
+            except Playlist.DoesNotExist:
+                logger.exception("Error deleting playlist with id \"%s\"." % playlist_id)
+                raise response.Http404
 
 
 class VideoFilterViewMixin(LoginRequiredMixin, View):

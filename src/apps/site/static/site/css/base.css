@@ -55,6 +55,9 @@ footer{
 
 .panel-form{
     max-width:450px;
+    display: inline-block;
+    width: 450px;
+    margin: 0 10px 10px 0;
 }
 .panel .form-title{
     margin-bottom: 25px;
@@ -85,4 +88,7 @@ footer{
 }
 #filters button.close{
     float:none;
+}
+.deletion-note{
+    margin-top: 20px;
 }
