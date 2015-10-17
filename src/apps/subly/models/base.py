@@ -93,6 +93,7 @@ class Playlist(models.Model):
             ve = video.VideoExtractor(auth)
             service = ve.get_service(self.user)
             ext_playlist = self.youtube_playlists.filter(active=True).last()
+            ext_playlist_vid_count = 0
             if not ext_playlist:
                 ext_playlist = self.create_external_playlist(ve, service)
             else:
@@ -100,21 +101,29 @@ class Playlist(models.Model):
                 try:
                     pl = ext_playlist.get(auth, self.user)
                     if pl.item_count is not None and pl.item_count >= ve.PLAYLIST_MAX:
-                        logger.info(
-                            "Playlist \"%s\" for %s has reached the video limit. Creating a new playlist..." % (
-                                pl.title, self.user))
-                        ext_playlist = self.create_external_playlist(ve, service)
+                        ext_playlist = self._create_next_playlist(ext_playlist, auth, ve, service, actual_playlist=pl)
+                    ext_playlist_vid_count = pl.item_count or 0
                 except Exception as ex:
                     logger.exception(ex)
                     ext_playlist = self.create_external_playlist(ve, service)
             for vid in videos:
+                if ext_playlist_vid_count >= ve.PLAYLIST_MAX:
+                    ext_playlist = self._create_next_playlist(ext_playlist, auth, ve, service)
+                    ext_playlist_vid_count = 0
                 ve.get_playlist_insert_request(service, ext_playlist.resource_id, vid.id).execute()
+                ext_playlist_vid_count += 1
             if self.last_update is None and self.youtube_playlists.count() == 0:
                 # Give the playlist an initial window to find videos (may not apply, depending on how active the
                 # user's subscriptions are)
                 self.last_update = now - timedelta(days=1)
             self.last_update = now
             self.save()
+
+    def _create_next_playlist(self, ext_playlist, auth, video_extractor, service, actual_playlist=None):
+        pl = actual_playlist or ext_playlist.get(auth, self.user)
+        logger.info("Playlist \"%s\" for %s has reached the video limit. Creating a new playlist..." % (
+            pl.title, self.user))
+        return self.create_external_playlist(video_extractor, service)
 
     def get_total_video_count(self):
         """
