@@ -108,11 +108,17 @@ USE_TZ = True
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'withtime': {
+            'format': '[%(asctime)s] : %(levelname)s : %(message)s'
+        }
+    },
     'handlers': {
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'stream': sys.stdout
+            'stream': sys.stdout,
+            'formatter': 'withtime'
         }
     },
     'loggers': {
