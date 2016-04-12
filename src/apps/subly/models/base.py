@@ -69,7 +69,10 @@ class Playlist(models.Model):
         from django.conf import settings
         version = settings.VERSION
         timestamp = now.strftime("%Y-%d-%m")
-        playlist_name = (self.title + ' ' if self.title else '') + '[subly %s]' % timestamp
+        playlist_name = (self.title + ' ' if self.title else ' ') + '%s [subly %s]' % (
+            unicode(self.youtube_playlists.count() + 1),
+            timestamp
+        )
         logger.info("Creating playlist \"%s\" for user." % playlist_name)
         p = video_extractor.create_playlist(service,
                                             playlist_name,
