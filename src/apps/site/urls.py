@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^/?$', views.IndexView.as_view(), name='home'),
     url(r'^login/?$', views.LoginView.as_view(), name='login'),
     url(r'^logout/?$', views.LogoutView.as_view(), name='logout'),
+    url(r'^profile/?$', views.ProfileView.as_view(), name='profile'),
 
     url(r'^playlists/$', views.PlaylistsView.as_view(), name='playlists'),
     url(r'^playlists/(\d+)$', views.PlaylistsDetailView.as_view(), name='playlist_detail'),

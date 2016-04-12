@@ -2,7 +2,7 @@ from django.views.generic import RedirectView, TemplateView, FormView
 from django.contrib.auth import login, logout
 from django.core import urlresolvers
 
-from mixins import TabViewMixin
+from mixins import TabViewMixin, LoginRequiredMixin
 from ..forms import AuthenticationForm
 
 
@@ -32,3 +32,11 @@ class LogoutView(RedirectView):
     def get(self, request, *args, **kwargs):
         logout(request)
         return super(LogoutView, self).get(request, *args, **kwargs)
+
+
+class ProfileView(LoginRequiredMixin, TemplateView, TabViewMixin):
+    template_name = 'site/profile.html'
+    tab_id = 'profile'
+
+    def get_context_data(self, **kwargs):
+        return super(ProfileView, self).get_context_data(**kwargs)
