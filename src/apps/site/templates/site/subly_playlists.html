@@ -52,7 +52,7 @@
                 </a>
                 <ul class="playlist-info list-unstyled">
                     <li><small>Has created <strong>{{ pl.youtube_playlists.count }} playlists</strong> on YouTube.</small></li>
-                    <li><small>Last updated {{ pl.last_update }}</small></li>
+                    <li><small>Last updated {% if pl.last_update %}{{ pl.last_update }}{% else %}never{% endif %}</small></li>
                 </ul>
             </div>
         </div>
