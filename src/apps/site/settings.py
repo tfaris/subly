@@ -45,8 +45,8 @@ INSTALLED_APPS = (
     'messages_extends',
     'apps.site',
     'apps.subly',
-    'djcelery',
-    'kombu.transport.django',
+    #'djcelery',
+    #'kombu.transport.django',
 )
 
 MIDDLEWARE_CLASSES = (
