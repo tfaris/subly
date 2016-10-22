@@ -92,3 +92,14 @@ footer{
 .deletion-note{
     margin-top: 20px;
 }
+.playlist-exclusions-list {
+    width: 400px;
+    list-style: none;
+}
+.playlist-exclusions-list li {
+    position: relative;
+}
+.playlist-exclusions-list .delete-control {
+    position: absolute;
+    right: 0;
+}

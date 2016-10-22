@@ -54,6 +54,10 @@ class PlaylistsDetailView(LoginRequiredMixin, TemplateView, TabViewMixin):
         try:
             playlist_id = self.args[0]
             data['playlist'] = playlist = Playlist.objects.get(pk=playlist_id)
+            data['playlist_exclusions'] = excluded_playlists = playlist.exclude_when_matches_playlist.all()
+            data['nonexclude_playlists'] = Playlist.objects.filter(user=self.request.user).exclude(
+                pk__in=excluded_playlists
+            ).exclude(pk=playlist.pk)
             data['filters'] = filters = playlist.videofilter_set.all().order_by('-pk')
             data['filter_fields'] = VideoFilter.FIELD_CHOICES
             for flt in filters:
@@ -134,6 +138,62 @@ class VideoFilterDelete(VideoFilterViewMixin):
     """
     def change(self, vf, src):
         vf.delete()
+        
+        
+class PlaylistExclusionViewMixin(LoginRequiredMixin, View):
+    
+    def post(self, request, *args, **kwargs):
+        response_code = response.HttpResponse.status_code
+        resp = {}
+        error = None
+        try:
+            playlist_id = request.POST['playlistId']
+            try:
+                exclusion_playlist_id = request.POST['exclusionPlaylistId']
+                try:
+                    playlist = Playlist.objects.get(pk=playlist_id, user=request.user)
+                    exclusion_playlist = Playlist.objects.get(pk=exclusion_playlist_id, user=request.user)
+                    error, change_response_code = self.change(playlist, exclusion_playlist)
+                    if change_response_code is not None:
+                        response_code = change_response_code
+                except Playlist.DoesNotExist:
+                    error = 'Invalid playlist id.'
+                    response_code = response.HttpResponseBadRequest.status_code
+            except KeyError:
+                error = 'Required field: exclusionPlaylistId'
+                response_code = response.HttpResponseBadRequest.status_code
+        except KeyError:
+            error = 'Required field: playlistId'
+            response_code = response.HttpResponseBadRequest.status_code
+        if error:
+            resp['error'] = error        
+        return JsonResponse(resp, status=response_code)
+        
+    def change(self, playlist, exclusion_playlist):
+        return None, None
+        
+        
+class PlaylistExclusionCreateView(PlaylistExclusionViewMixin):
+    def change(self, playlist, exclusion_playlist):
+        error, response_code = None, None
+        if playlist == exclusion_playlist:
+            error = 'Playlists cannot exclude matches from themselves.'
+            response_code = response.HttpResponseBadRequest.status_code
+        elif playlist.exclude_when_matches_playlist.filter(pk=exclusion_playlist.pk).exists():
+            error = '"%s" already excludes matching videos from "%s"' % (
+                playlist.title,
+                exclusion_playlist.title
+            )
+            response_code = response.HttpResponseBadRequest.status_code
+        else:
+            playlist.exclude_when_matches_playlist.add(exclusion_playlist)
+        return error, response_code
+        
+        
+class PlaylistExclusionDeleteView(PlaylistExclusionViewMixin):
+    def change(self, playlist, exclusion_playlist):
+        playlist.exclude_when_matches_playlist.remove(exclusion_playlist)
+        return None, None
 
 
 class VideoFilterCreateView(LoginRequiredMixin, TemplateView):

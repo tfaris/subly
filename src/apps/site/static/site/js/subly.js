@@ -77,6 +77,24 @@ function newFilterHtml(playlistId){
     });
 }
 
+function newPlaylistExclusion(playlistId, exclusionPlaylistId){
+    return $.ajax({
+        type: "POST",
+        url: "playlist_exclusion/new/",
+        data: {playlistId: playlistId, exclusionPlaylistId: exclusionPlaylistId},
+        dataType: "json"
+    });
+}
+
+function deletePlaylistExclusion(playlistId, exclusionPlaylistId){
+    return $.ajax({
+        type: "POST",
+        url: "playlist_exclusion/delete/",
+        data: {playlistId: playlistId, exclusionPlaylistId: exclusionPlaylistId},
+        dataType: "json"
+    });
+}
+
 var VideoFilter = function(options){
     if (!options){
         options = {};

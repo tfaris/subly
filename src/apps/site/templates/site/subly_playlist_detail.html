@@ -14,6 +14,24 @@
     <div class="pull-right">
         <a href="#" data-toggle="modal" data-target="#delPlaylistModal" class="text-danger">Delete Playlist</a>
     </div>
+        
+    {% if playlist_exclusions %}
+        <h4>Don't add videos to this playlist if they're also matched by any of these playlists:</h4>
+    {% endif %}
+    <ul class="playlist-exclusions-list">
+        {% for pl in playlist_exclusions %}
+            <li><span>{{ pl.title }}</span><button data-id="{{ pl.pk }}" data-playlist-title="{{ pl.title }}" class="close delete-control"><span aria-hidden="true">&times;</span></button></li>
+        {% endfor %}
+        <li class='add-playlist-exclusion'>
+            <select name='add-playlist-exclusion' class='form-control'>
+                <option></option>
+                {% for pl in nonexclude_playlists %}
+                    <option value="{{ pl.pk }}">{{ pl.title }}</option>
+                {% endfor %}
+            </select>
+        </li>
+    </ul>
+    
     <h4>Playlist filters:</h4>
     <input type="hidden" name="playlist-id" value="{{ playlist.pk }}" />
 

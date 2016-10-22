@@ -17,6 +17,9 @@ urlpatterns = [
     url(r'^playlists/filter/new/$', views.VideoFilterCreateView.as_view(), name='filter_new'),
     url(r'^playlists/filter/update/$', views.VideoFilterUpdate.as_view(), name='filter_update'),
     url(r'^playlists/filter/delete/$', views.VideoFilterDelete.as_view(), name='filter_delete'),
+    
+    url(r'^playlists/playlist_exclusion/new/$', views.PlaylistExclusionCreateView.as_view(), name='playlist_exclusion_new'),
+    url(r'^playlists/playlist_exclusion/delete/$', views.PlaylistExclusionDeleteView.as_view(), name='playlist_exclusion_delete'),
 
     url(r'^messages/', include('messages_extends.urls')),
     url(r'^admin/', include(admin.site.urls)),

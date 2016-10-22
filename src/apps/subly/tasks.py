@@ -60,6 +60,18 @@ class UpdatePlaylistsTask(celery.Task):
                                                         vid_list.append(video)
                                     else:
                                         video_outdated_count[video] = video_outdated_count.setdefault(video, 0) + 1
+                                # After the initial matching, check playlist-level exclusions
+                                for playlist in playlists:
+                                    this_list_matches = playlist_videos.get(playlist, [])
+                                    for exclusion_playlist in playlist.exclude_when_matches_playlist.all():
+                                        if exclusion_playlist != playlist:
+                                            exclusion_list_matches = playlist_videos.get(exclusion_playlist, [])
+                                            for vid in list(this_list_matches):
+                                                if vid in exclusion_list_matches:
+                                                    this_list_matches.remove(vid)
+                                                    playlist_exclusions.setdefault(playlist, []).append(vid)
+                                                    logger.info("\"%s\" matches playlist \"%s\", but also matches playlist \"%s\", so is excluded." % (video.title, playlist.title, exclusion_playlist.title))
+                                            
                                 # If the video had no matches in any playlists, and its not out of date with all
                                 # playlists, add to the unrecognized videos batch so the user can review it later.
                                 if (video_match_count.setdefault(video, 0) == 0 and

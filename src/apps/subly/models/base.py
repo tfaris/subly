@@ -61,8 +61,9 @@ class Playlist(models.Model):
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     youtube_playlists = models.ManyToManyField(ExternalPlaylist)
+    exclude_when_matches_playlist = models.ManyToManyField('Playlist')
     last_update = models.DateTimeField(null=True, blank=True)
-    title = models.CharField(blank=True, max_length=100, default="")
+    title = models.CharField(blank=True, max_length=100, default="")    
 
     def create_external_playlist(self, video_extractor, service):
         now = timezone.now()

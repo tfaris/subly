@@ -12,6 +12,10 @@ $(document).ready(function(){
         filterDelete($(this));
     });
     $(".btn-add-filter").click(addNewFilter);
+    $("*[name='add-playlist-exclusion']").change(addNewPlaylistExclusion);
+    $(".playlist-exclusions-list").on("click", ".delete-control.close", function(){
+        playlistExclusionDelete($(this));
+    });
 });
 
 /**
@@ -139,4 +143,33 @@ function addNewFilter(){
         $(data.content).insertBefore("#filters tbody tr:eq(0)").find("input:eq(0)").focus();
         showAdvancedControls(getAdvancedControlsShown());
     });
+}
+
+function addNewPlaylistExclusion(){
+    var playlistId = $("input[name='playlist-id']").val(),
+        exclusionPlaylistId = $("*[name='add-playlist-exclusion']").val(),
+        exclusionPlaylistTitle = $("*[name='add-playlist-exclusion'] option:selected").text();
+    if (typeof playlistId !== "undefined" && typeof exclusionPlaylistId !== "undefined" && exclusionPlaylistId !== "") {
+        newPlaylistExclusion(playlistId, exclusionPlaylistId).fail(function(data){
+            addErrorMessage(getAjaxError(data));
+        }).success(function(){
+            $("<li><span>" + exclusionPlaylistTitle + "</span><button data-id='" + exclusionPlaylistId + "' data-playlist-title='"+ exclusionPlaylistTitle +"' class='close delete-control'><span aria-hidden='true'>&times;</span></button></li>")
+                .insertBefore($(".playlist-exclusions-list li:eq(-1)"));
+            $("*[name='add-playlist-exclusion'] option[value='" + exclusionPlaylistId + "']").remove();
+        });
+    }
+}
+
+function playlistExclusionDelete(el){
+    var playlistId = $("input[name='playlist-id']").val(),
+        exclusionPlaylistId = el.data("id"),
+        exclusionPlaylistTitle = el.data("playlist-title");
+    if (typeof playlistId !== "undefined" && typeof exclusionPlaylistId !== "undefined" && exclusionPlaylistId !== "") {
+        deletePlaylistExclusion(playlistId, exclusionPlaylistId).fail(function(data){
+            addErrorMessage(getAjaxError(data));
+        }).success(function(){
+            $(".playlist-exclusions-list [data-id=" + exclusionPlaylistId + "]").parents(".playlist-exclusions-list li").remove();
+            $("*[name='add-playlist-exclusion']").append("<option value='" + exclusionPlaylistId + "'>"+ exclusionPlaylistTitle + "</option>");
+        });
+    }
 }
