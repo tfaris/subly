@@ -172,13 +172,13 @@ class UploadPlaylistsVideoExtractor(VideoExtractor):
             self.get_playlist_items(youtube,
                                     playlist,
                                     max_results=50,
-                                    batch=playlist_items_batch,
+                                    batch=None,
                                     callback=lambda vids: all_upload_items.extend(vids))
         playlist_items_batch.execute(http=youtube._http)
         videos = []
         vid_info_batch = BatchHttpRequest()
         for chunk in chunks(all_upload_items, 50):
-            self.get_video_info(youtube, chunk, batch=vid_info_batch, callback=lambda info: videos.extend(info))
+            self.get_video_info(youtube, chunk, batch=None, callback=lambda info: videos.extend(info))
         vid_info_batch.execute(youtube._http)
         videos.sort(key=lambda v: v.publishedAt)
         return videos
