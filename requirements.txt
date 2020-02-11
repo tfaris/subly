@@ -1,4 +1,4 @@
-Django==1.8
+Django==1.11.28
 amqp==2.1.1
 anyjson==0.3.3
 billiard==3.5.0.1
